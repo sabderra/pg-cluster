@@ -1,0 +1,56 @@
+services:
+
+  pg-primary:
+    image: pg-primary:0.0.1
+    build:
+      context: ./pg-primary
+      dockerfile: ./Dockerfile
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_REPL_USER: ${POSTGRES_REPL_USER} 
+      POSTGRES_REPL_PASSWORD: ${POSTGRES_REPL_PASSWORD} 
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DATABASE}", "-U", "${POSTGRES_USER}"]
+      interval: 3s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - pg_data:/var/lib/postgresql
+      - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
+    ports:
+      - 5432:5432
+    networks:
+      - pg_cluster
+
+  pg-replica-1:
+    image: pg-replica:0.0.1
+    build:
+      context: ./pg-replica
+      dockerfile: ./Dockerfile
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_REPL_USER: ${POSTGRES_REPL_USER}
+      POSTGRES_REPL_PASSWORD: ${POSTGRES_REPL_PASSWORD}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DATABASE}", "-U", "${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    ports:
+      - 5433:5432
+    networks:
+      - pg_cluster
+    depends_on:
+      pg-primary:
+        condition: service_healthy
+
+
+volumes:
+  pg_data:
+
+networks:
+  pg_cluster:
+
