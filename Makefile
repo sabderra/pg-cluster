@@ -1,21 +1,21 @@
 TAG := 0.0.1
 
-images: pg-base pg-primary pg-replica
+build-images: build-pg-base build-pg-primary build-pg-replica
 
-.PHONY: pg-base
-pg-base:
+.PHONY: build-pg-base
+build-pg-base:
 	cd pg-base && docker build -f Dockerfile -t pg-base:$(TAG) .
 
-.PHONY: pg-primary
-pg-primary:
+.PHONY: build-pg-primary
+build-pg-primary:
 	cd pg-primary && docker build -f Dockerfile -t pg-primary:$(TAG) .
 
-.PHONY: pg-replica
-pg-replica:
+.PHONY: build-pg-replica
+build-pg-replica:
 	cd pg-replica && docker build -f Dockerfile -t pg-replica:$(TAG) .
 
 
-setup: pg-base pg-primary pg-replica up
+setup: build-pg-base build-pg-primary build-pg-replica
 	
 
 up:
@@ -23,6 +23,10 @@ up:
 
 down:
 	docker-compose down
+
+
+psql:
+	docker run -it --rm --network=pg-cluster_pg_cluster postgres:14-alpine bash
 
 .PHONY: clean
 clean: 
