@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jdbc.repository.config.AbstractJdbcConfiguration;
+import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class TransactionRoutingConfiguration extends AbstractJdbcConfiguration {
 
     @Bean
     public DataSource routingDataSource() {
-        log.info("routingDataSource");
+        log.info("routingDataSource() called");
         TransactionRoutingDataSource routingDataSource = new TransactionRoutingDataSource();
 
         DataSource primaryDataSource = new HikariDataSource(primaryConfiguration());
@@ -44,7 +45,20 @@ public class TransactionRoutingConfiguration extends AbstractJdbcConfiguration {
         );
 
         routingDataSource.setTargetDataSources(dataSourceMap);
-        return routingDataSource;
+        routingDataSource.setDefaultTargetDataSource(primaryDataSource);
+
+        // Without this flyway initialization fails
+        routingDataSource.afterPropertiesSet();
+
+//        return routingDataSource;
+        return new LazyConnectionDataSourceProxy(routingDataSource);
     }
+
+
+//    @Bean
+//    public DataSource dataSource(@Qualifier("routingDataSource") DataSource routingDataSource) {
+//        log.info("dataSource() called, returning LazyConnectionDataSourceProxy");
+//        return new LazyConnectionDataSourceProxy(routingDataSource);
+//    }
 
 }

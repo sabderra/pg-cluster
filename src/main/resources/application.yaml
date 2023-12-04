@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: pw
+  transaction:
+    synchronization:
+      active: true
+  flyway:
+    
+
+datasource:
+  primary:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    jdbcUrl: ${datasource.primary.url}
+    username: postgres
+    password: pw
+  replica:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/postgres
+    jdbcUrl: ${datasource.replica.url}
+    username: postgres
+    password: pw
+
