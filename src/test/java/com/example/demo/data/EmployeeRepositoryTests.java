@@ -1,5 +1,6 @@
 package com.example.demo.data;
 
+import com.example.demo.DemoApplication;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -10,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@SpringBootTest(classes = DemoApplication.class)
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class EmployeeRepositoryTests {
